@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "adc.h": "c",
-        "core": "cpp"
+        "core": "cpp",
+        "iostream": "cpp",
+        "ostream": "cpp"
     }
 }
