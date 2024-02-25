@@ -9,8 +9,8 @@ using namespace std;
 using namespace Eigen;
 
 // 文件路径
-string left_file = "./left.png";
-string right_file = "./right.png";
+string left_file = "./stereo/left.png";
+string right_file = "./stereo/right.png";
 
 // 在pangolin中画图，已写好，无需调整
 void showPointCloud(
