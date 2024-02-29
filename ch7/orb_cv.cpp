@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
   assert(img_1.data != nullptr && img_2.data != nullptr);
 
   //-- 初始化
-  std::vector<KeyPoint> keypoints_1, keypoints_2;
-  Mat descriptors_1, descriptors_2;
+  std::vector<KeyPoint> keypoints_1, keypoints_2;//keypoints为OpenCv中定义的类，表示特征点
+  Mat descriptors_1, descriptors_2;//描述子
   Ptr<FeatureDetector> detector = ORB::create();
   Ptr<DescriptorExtractor> descriptor = ORB::create();
   Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
