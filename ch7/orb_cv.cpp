@@ -19,9 +19,10 @@ int main(int argc, char **argv) {
 
   //-- 初始化
   std::vector<KeyPoint> keypoints_1, keypoints_2;//keypoints为OpenCv中定义的类，表示特征点
-  Mat descriptors_1, descriptors_2;//描述子
-  Ptr<FeatureDetector> detector = ORB::create();
-  Ptr<DescriptorExtractor> descriptor = ORB::create();
+  Mat descriptors_1, descriptors_2;//描述子 
+  //Ptr为opencv的智能指针
+  Ptr<ORB> detector = ORB::create(); //关键点 ORB 
+  Ptr<ORB> descriptor = ORB::create(); //描述子 ORB
   Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
 
   //-- 第一步:检测 Oriented FAST 角点位置
@@ -36,12 +37,12 @@ int main(int argc, char **argv) {
   chrono::duration<double> time_used = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
   cout << "extract ORB cost = " << time_used.count() << " seconds. " << endl;
 
-  Mat outimg1;
+  Mat outimg1;//绘制特征点后的图片
   drawKeypoints(img_1, keypoints_1, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT);
   imshow("ORB features", outimg1);
 
   //-- 第三步:对两幅图像中的BRIEF描述子进行匹配，使用 Hamming 距离
-  vector<DMatch> matches;
+  vector<DMatch> matches;//保存结果数据
   t1 = chrono::steady_clock::now();
   matcher->match(descriptors_1, descriptors_2, matches);
   t2 = chrono::steady_clock::now();
@@ -52,6 +53,7 @@ int main(int argc, char **argv) {
   // 计算最小距离和最大距离
   auto min_max = minmax_element(matches.begin(), matches.end(),
                                 [](const DMatch &m1, const DMatch &m2) { return m1.distance < m2.distance; });
+                                //第三个参数为自定义的比较函数
   double min_dist = min_max.first->distance;
   double max_dist = min_max.second->distance;
 

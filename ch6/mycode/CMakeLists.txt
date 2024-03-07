@@ -28,4 +28,4 @@ add_executable(ceresCurveFitting ceresCurveFitting.cpp)
 target_link_libraries(ceresCurveFitting ${CERES_LIBRARIES} ${OpenCV_LIBRARIES})
 
 add_executable(g2o g2o.cpp)
-target_link_libraries(g2o ${OpenCV_LIBS} ${G2O_CORE_LIBRARY} ${G2O_STUFF_LIBRARY})
+target_link_libraries(g2o ${OpenCV_LIBS} ${G2O_CORE_LIBRARY} ${G2O_STUFF_LIBRARY} glog) 
