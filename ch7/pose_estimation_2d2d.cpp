@@ -27,14 +27,13 @@ void pose_estimation_2d2d(
 // 像素坐标转相机归一化坐标
 Point2d pixel2cam(const Point2d &p, const Mat &K);
 
+string first_file = "./1.png";
+string second_file = "./2.png";
+
 int main(int argc, char **argv) {
-  if (argc != 3) {
-    cout << "usage: pose_estimation_2d2d img1 img2" << endl;
-    return 1;
-  }
   //-- 读取图像
-  Mat img_1 = imread(argv[1], CV_LOAD_IMAGE_COLOR);
-  Mat img_2 = imread(argv[2], CV_LOAD_IMAGE_COLOR);
+  Mat img_1 = imread(first_file, 0);
+  Mat img_2 = imread(second_file, 0);
   assert(img_1.data && img_2.data && "Can not load images!");
 
   vector<KeyPoint> keypoints_1, keypoints_2;
@@ -55,7 +54,7 @@ int main(int argc, char **argv) {
   cout << "t^R=" << endl << t_x * R << endl;
 
   //-- 验证对极约束
-  Mat K = (Mat_<double>(3, 3) << 520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1);
+  Mat K = (Mat_<double>(3, 3) << 520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1);//相机内参
   for (DMatch m: matches) {
     Point2d pt1 = pixel2cam(keypoints_1[m.queryIdx].pt, K);
     Mat y1 = (Mat_<double>(3, 1) << pt1.x, pt1.y, 1);
@@ -133,6 +132,7 @@ void pose_estimation_2d2d(std::vector<KeyPoint> keypoints_1,
   vector<Point2f> points1;
   vector<Point2f> points2;
 
+  //queryIdx为一个匹配中查询点的索引，trainIdx为被查询到的点的索引
   for (int i = 0; i < (int) matches.size(); i++) {
     points1.push_back(keypoints_1[matches[i].queryIdx].pt);
     points2.push_back(keypoints_2[matches[i].trainIdx].pt);
@@ -140,7 +140,7 @@ void pose_estimation_2d2d(std::vector<KeyPoint> keypoints_1,
 
   //-- 计算基础矩阵
   Mat fundamental_matrix;
-  fundamental_matrix = findFundamentalMat(points1, points2, CV_FM_8POINT);
+  fundamental_matrix = findFundamentalMat(points1, points2, CV_FM_8POINT);//用八点计算基础矩阵
   cout << "fundamental_matrix is " << endl << fundamental_matrix << endl;
 
   //-- 计算本质矩阵

@@ -35,14 +35,14 @@ inline cv::Scalar get_color(float depth) {
 // 像素坐标转相机归一化坐标
 Point2f pixel2cam(const Point2d &p, const Mat &K);
 
+string leftimg="./1.png";
+string rightimg="./2.png";
+
+
 int main(int argc, char **argv) {
-  if (argc != 3) {
-    cout << "usage: triangulation img1 img2" << endl;
-    return 1;
-  }
   //-- 读取图像
-  Mat img_1 = imread(argv[1], CV_LOAD_IMAGE_COLOR);
-  Mat img_2 = imread(argv[2], CV_LOAD_IMAGE_COLOR);
+  Mat img_1 = imread(leftimg, CV_LOAD_IMAGE_COLOR);
+  Mat img_2 = imread(rightimg, CV_LOAD_IMAGE_COLOR);
 
   vector<KeyPoint> keypoints_1, keypoints_2;
   vector<DMatch> matches;
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
   Mat K = (Mat_<double>(3, 3) << 520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1);
   Mat img1_plot = img_1.clone();
   Mat img2_plot = img_2.clone();
-  for (int i = 0; i < matches.size(); i++) {
+  for (int i = 0; i < points.size(); i++) {
     // 第一个图
     float depth1 = points[i].z;
     cout << "depth: " << depth1 << endl;
@@ -173,12 +173,13 @@ void triangulation(
   Mat K = (Mat_<double>(3, 3) << 520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1);
   vector<Point2f> pts_1, pts_2;
   for (DMatch m:matches) {
-    // 将像素坐标转换至相机坐标
+    // 将像素坐标转换至相机坐标，归一化坐标
     pts_1.push_back(pixel2cam(keypoint_1[m.queryIdx].pt, K));
     pts_2.push_back(pixel2cam(keypoint_2[m.trainIdx].pt, K));
   }
 
   Mat pts_4d;
+  // T1为第一个相机位姿齐次变换矩阵，T2为第二个相机位姿的齐次变换矩阵
   cv::triangulatePoints(T1, T2, pts_1, pts_2, pts_4d);
 
   // 转换成非齐次坐标

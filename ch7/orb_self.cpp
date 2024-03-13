@@ -362,7 +362,7 @@ void ComputeORB(const cv::Mat &img, vector<cv::KeyPoint> &keypoints, vector<Desc
       }
     }
 
-    // angle should be arc tan(m01/m10);
+    // angle should be arc tan(m01/m10);计算中心点到灰度质心的夹角
     float m_sqrt = sqrt(m01 * m01 + m10 * m10) + 1e-18; // avoid divide by zero
     float sin_theta = m01 / m_sqrt;
     float cos_theta = m10 / m_sqrt;
