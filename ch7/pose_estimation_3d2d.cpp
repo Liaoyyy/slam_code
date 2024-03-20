@@ -45,14 +45,18 @@ void bundleAdjustmentGaussNewton(
   Sophus::SE3d &pose
 );
 
+string first_img="./1.png";
+string second_img="./2.png";
+string first_img_depth="./1_depth.png";
+
 int main(int argc, char **argv) {
-  if (argc != 5) {
-    cout << "usage: pose_estimation_3d2d img1 img2 depth1 depth2" << endl;
-    return 1;
-  }
+  // if (argc != 5) {
+  //   cout << "usage: pose_estimation_3d2d img1 img2 depth1 depth2" << endl;
+  //   return 1;
+  // }
   //-- 读取图像
-  Mat img_1 = imread(argv[1], CV_LOAD_IMAGE_COLOR);
-  Mat img_2 = imread(argv[2], CV_LOAD_IMAGE_COLOR);
+  Mat img_1 = imread(first_img, CV_LOAD_IMAGE_COLOR);
+  Mat img_2 = imread(second_img, CV_LOAD_IMAGE_COLOR);
   assert(img_1.data && img_2.data && "Can not load images!");
 
   vector<KeyPoint> keypoints_1, keypoints_2;
@@ -61,7 +65,7 @@ int main(int argc, char **argv) {
   cout << "一共找到了" << matches.size() << "组匹配点" << endl;
 
   // 建立3D点
-  Mat d1 = imread(argv[3], CV_LOAD_IMAGE_UNCHANGED);       // 深度图为16位无符号数，单通道图像
+  Mat d1 = imread(first_img_depth, CV_LOAD_IMAGE_UNCHANGED);       // 深度图为16位无符号数，单通道图像
   Mat K = (Mat_<double>(3, 3) << 520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1);
   vector<Point3f> pts_3d;
   vector<Point2f> pts_2d;
