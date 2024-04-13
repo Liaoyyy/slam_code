@@ -193,7 +193,7 @@ void bundleAdjustmentGaussNewton(
     cost = 0;
     // compute cost
     for (int i = 0; i < points_3d.size(); i++) {
-      Eigen::Vector3d pc = pose * points_3d[i];
+      Eigen::Vector3d pc = pose * points_3d[i];//pose为位姿矩阵T,pc为相机坐标系下坐标，t为重定义的
       double inv_z = 1.0 / pc[2];
       double inv_z2 = inv_z * inv_z;
       Eigen::Vector2d proj(fx * pc[0] / pc[2] + cx, fy * pc[1] / pc[2] + cy);
@@ -201,7 +201,7 @@ void bundleAdjustmentGaussNewton(
       Eigen::Vector2d e = points_2d[i] - proj;
 
       cost += e.squaredNorm();
-      Eigen::Matrix<double, 2, 6> J;
+      Eigen::Matrix<double, 2, 6> J;//雅可比矩阵
       J << -fx * inv_z,
         0,
         fx * pc[0] * inv_z2,

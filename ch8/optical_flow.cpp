@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
 
     // plot the differences of those functions
     Mat img2_single;
-    cv::cvtColor(img2, img2_single, CV_GRAY2BGR);
+    cv::cvtColor(img2, img2_single, cv::COLOR_GRAY2BGR);
     for (int i = 0; i < kp2_single.size(); i++) {
         if (success_single[i]) {
             cv::circle(img2_single, kp2_single[i].pt, 2, cv::Scalar(0, 250, 0), 2);
@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
     }
 
     Mat img2_multi;
-    cv::cvtColor(img2, img2_multi, CV_GRAY2BGR);
+    cv::cvtColor(img2, img2_multi, cv::COLOR_GRAY2BGR);
     for (int i = 0; i < kp2_multi.size(); i++) {
         if (success_multi[i]) {
             cv::circle(img2_multi, kp2_multi[i].pt, 2, cv::Scalar(0, 250, 0), 2);
@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
     }
 
     Mat img2_CV;
-    cv::cvtColor(img2, img2_CV, CV_GRAY2BGR);
+    cv::cvtColor(img2, img2_CV, cv::COLOR_GRAY2BGR);
     for (int i = 0; i < pt2.size(); i++) {
         if (status[i]) {
             cv::circle(img2_CV, pt2[i], 2, cv::Scalar(0, 250, 0), 2);
@@ -186,10 +186,13 @@ void OpticalFlowSingleLevel(
     kp2.resize(kp1.size());
     success.resize(kp1.size());
     OpticalFlowTracker tracker(img1, img2, kp1, kp2, success, inverse, has_initial);
+    //parallet_for_函数用于并行计算，传入两个参数,一个为Range类型，表示遍历的开始与结尾,第二个参数为一个函数，函数中存在遍历过程
+    //bind函数用于将类内函数绑定为一个普通函数，此处将calculateOpticalFlow函数从tracker类从剥离，并隐式调用，将第一个参数(_1)函数内部第一个参数
     parallel_for_(Range(0, kp1.size()),
                   std::bind(&OpticalFlowTracker::calculateOpticalFlow, &tracker, placeholders::_1));
 }
 
+//该函数目的，根据图片1中特征点找到图片2中匹配的特征点 (利用灰度信息进行匹配)
 void OpticalFlowTracker::calculateOpticalFlow(const Range &range) {
     // parameters
     int half_patch_size = 4;
@@ -197,6 +200,7 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range) {
     for (size_t i = range.start; i < range.end; i++) {
         auto kp = kp1[i];
         double dx = 0, dy = 0; // dx,dy need to be estimated
+        //has_initial表示对kp2是否有初始值猜测
         if (has_initial) {
             dx = kp2[i].pt.x - kp.pt.x;
             dy = kp2[i].pt.y - kp.pt.y;
@@ -221,11 +225,14 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range) {
             cost = 0;
 
             // compute cost and jacobian
+            // half_patch_size是考虑的w x w的窗口大小
             for (int x = -half_patch_size; x < half_patch_size; x++)
                 for (int y = -half_patch_size; y < half_patch_size; y++) {
+                    //GetPixelValue获取图像灰度值
                     double error = GetPixelValue(img1, kp.pt.x + x, kp.pt.y + y) -
                                    GetPixelValue(img2, kp.pt.x + x + dx, kp.pt.y + y + dy);;  // Jacobian
                     if (inverse == false) {
+                        //次数Jacobian矩阵本应为损失函数关于dx,dy变量的偏到，但像素坐标离散，用差分代替偏导(差分为+1处与-1处做差)
                         J = -1.0 * Eigen::Vector2d(
                             0.5 * (GetPixelValue(img2, kp.pt.x + dx + x + 1, kp.pt.y + dy + y) -
                                    GetPixelValue(img2, kp.pt.x + dx + x - 1, kp.pt.y + dy + y)),
@@ -277,6 +284,7 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range) {
             }
         }
 
+        //是否成功找到对应匹配点
         success[i] = succ;
 
         // set kp2
