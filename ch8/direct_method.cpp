@@ -7,7 +7,7 @@ using namespace std;
 
 typedef vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d>> VecVector2d;
 
-// Camera intrinsics
+// Camera intrinsics 相机内参
 double fx = 718.856, fy = 718.856, cx = 607.1928, cy = 185.2157;
 // baseline
 double baseline = 0.573;
@@ -126,17 +126,19 @@ int main(int argc, char **argv) {
     cv::Mat disparity_img = cv::imread(disparity_file, 0);
 
     // let's randomly pick pixels in the first image and generate some 3d points in the first image's frame
-    cv::RNG rng;
-    int nPoints = 2000;
-    int boarder = 20;
+    cv::RNG rng;//随机数生成器
+    int nPoints = 2000; //随机点个数
+    int boarder = 20; //边界点不选择
     VecVector2d pixels_ref;
     vector<double> depth_ref;
 
     // generate pixels in ref and load depth data
+    // 随机找一些点
     for (int i = 0; i < nPoints; i++) {
+        //使用均匀随机数生成器
         int x = rng.uniform(boarder, left_img.cols - boarder);  // don't pick pixels close to boarder
         int y = rng.uniform(boarder, left_img.rows - boarder);  // don't pick pixels close to boarder
-        int disparity = disparity_img.at<uchar>(y, x);
+        int disparity = disparity_img.at<uchar>(y, x);//dispartiy为视差图
         double depth = fx * baseline / disparity; // you know this is disparity to depth
         depth_ref.push_back(depth);
         pixels_ref.push_back(Eigen::Vector2d(x, y));
@@ -305,6 +307,7 @@ void DirectPoseEstimationMultiLayer(
     double scales[] = {1.0, 0.5, 0.25, 0.125};
 
     // create pyramids
+    // 建立金字塔
     vector<cv::Mat> pyr1, pyr2; // image pyramids
     for (int i = 0; i < pyramids; i++) {
         if (i == 0) {
@@ -321,6 +324,7 @@ void DirectPoseEstimationMultiLayer(
         }
     }
 
+    //注： 随着图片伸缩，相机内参矩阵其实也在变化！！
     double fxG = fx, fyG = fy, cxG = cx, cyG = cy;  // backup the old values
     for (int level = pyramids - 1; level >= 0; level--) {
         VecVector2d px_ref_pyr; // set the keypoints in this pyramid level

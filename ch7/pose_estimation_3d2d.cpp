@@ -279,7 +279,7 @@ public:
     Sophus::SE3d T = v->estimate();
     Eigen::Vector3d pos_pixel = _K * (T * _pos3d);
     pos_pixel /= pos_pixel[2];
-    _error = _measurement - pos_pixel.head<2>();
+    _error = _measurement - pos_pixel.head(2);//.head切片取前两个元素
   }
 
   virtual void linearizeOplus() override {

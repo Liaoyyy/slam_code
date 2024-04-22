@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION  3.0)
 project(ch8_mycode)
+
+include_directories("/usr/include/eigen3/")
+
 add_executable(learnOpenCV learnOpenCV.cpp)
 add_executable(LK  LK.cpp LK_driver.cpp)
 

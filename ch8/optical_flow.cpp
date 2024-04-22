@@ -198,7 +198,7 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range) {
     int half_patch_size = 4;
     int iterations = 10;
     for (size_t i = range.start; i < range.end; i++) {
-        auto kp = kp1[i];
+        auto kp = kp1[i]; //取第i个关键点
         double dx = 0, dy = 0; // dx,dy need to be estimated
         //has_initial表示对kp2是否有初始值猜测
         if (has_initial) {
@@ -226,13 +226,14 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range) {
 
             // compute cost and jacobian
             // half_patch_size是考虑的w x w的窗口大小
+            // 优化时不仅仅考虑特征点的一个点，而是考虑一个窗口大小内的所有点的移动
             for (int x = -half_patch_size; x < half_patch_size; x++)
                 for (int y = -half_patch_size; y < half_patch_size; y++) {
                     //GetPixelValue获取图像灰度值
                     double error = GetPixelValue(img1, kp.pt.x + x, kp.pt.y + y) -
                                    GetPixelValue(img2, kp.pt.x + x + dx, kp.pt.y + y + dy);;  // Jacobian
                     if (inverse == false) {
-                        //次数Jacobian矩阵本应为损失函数关于dx,dy变量的偏到，但像素坐标离散，用差分代替偏导(差分为+1处与-1处做差)
+                        //次数Jacobian矩阵本应为损失函数关于dx,dy变量的偏导，但像素坐标离散，用差分代替偏导(差分为+1处与-1处做差)
                         J = -1.0 * Eigen::Vector2d(
                             0.5 * (GetPixelValue(img2, kp.pt.x + dx + x + 1, kp.pt.y + dy + y) -
                                    GetPixelValue(img2, kp.pt.x + dx + x - 1, kp.pt.y + dy + y)),
@@ -327,6 +328,7 @@ void OpticalFlowMultiLevel(
     cout << "build pyramid time: " << time_used.count() << endl;
 
     // coarse-to-fine LK tracking in pyramids
+    // 找到底层特征点在金字塔顶层位置并存入kp1_pyr中
     vector<KeyPoint> kp1_pyr, kp2_pyr;
     for (auto &kp:kp1) {
         auto kp_top = kp;

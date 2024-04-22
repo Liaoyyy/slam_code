@@ -51,6 +51,9 @@ int main(int argc, char **argv) {
   cout << "se3 hat = \n" << Sophus::SE3d::hat(se3) << endl;
   cout << "se3 hat vee = " << Sophus::SE3d::vee(Sophus::SE3d::hat(se3)).transpose() << endl;
 
+  Vector3d point(1,1,1);
+  cout<<"Test :"<<SE3_qt*point<<endl;
+
   // 最后，演示一下更新
   Vector6d update_se3; //更新量
   update_se3.setZero();

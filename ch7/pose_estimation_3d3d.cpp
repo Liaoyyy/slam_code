@@ -82,7 +82,7 @@ public:
   virtual void linearizeOplus() override {
     VertexPose *pose = static_cast<VertexPose *>(_vertices[0]);
     Sophus::SE3d T = pose->estimate();
-    Eigen::Vector3d xyz_trans = T * _point;
+    Eigen::Vector3d xyz_trans = T * _point; //SE3可以和Vector直接做点乘（重定义了*）
     _jacobianOplusXi.block<3, 3>(0, 0) = -Eigen::Matrix3d::Identity();
     _jacobianOplusXi.block<3, 3>(0, 3) = Sophus::SO3d::hat(xyz_trans);
   }
