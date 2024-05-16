@@ -25,6 +25,7 @@ public:
                  const double translation_sigma,
                  const double point_sigma);
 
+    //返回优化变量个数 位姿6+焦距1+畸变参数2=9 使用四元数时位姿变量为7
     int camera_block_size() const { return use_quaternions_ ? 10 : 9; }
 
     int point_block_size() const { return 3; }
@@ -51,7 +52,7 @@ public:
 
     /// camera参数的起始地址
     double *mutable_cameras() { return parameters_; }
-
+    /// 特征点参数的起始地址
     double *mutable_points() { return parameters_ + camera_block_size() * num_cameras_; }
 
     double *mutable_camera_for_observation(int i) {
@@ -79,14 +80,14 @@ private:
                                     const double *center,
                                     double *camera) const;
 
-    int num_cameras_;
-    int num_points_;
-    int num_observations_;
+    int num_cameras_;  //相机数量(即观测点数量)
+    int num_points_;    //特征点(路标点数量)
+    int num_observations_; //各观测点观测到的路标点总数量
     int num_parameters_;
     bool use_quaternions_;
 
     int *point_index_;      // 每个observation对应的point index
     int *camera_index_;     // 每个observation对应的camera index
-    double *observations_;
-    double *parameters_;
+    double *observations_;  
+    double *parameters_;    // 相机参数(内参+外参数)+特征点坐标
 };

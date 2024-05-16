@@ -8,12 +8,12 @@ using namespace std;
 void SolveBA(BALProblem &bal_problem);
 
 int main(int argc, char **argv) {
-    if (argc != 2) {
-        cout << "usage: bundle_adjustment_ceres bal_data.txt" << endl;
-        return 1;
-    }
+    // if (argc != 2) {
+    //     cout << "usage: bundle_adjustment_ceres bal_data.txt" << endl;
+    //     return 1;
+    // }
 
-    BALProblem bal_problem(argv[1]);
+    BALProblem bal_problem("./problem-16-22106-pre.txt");
     bal_problem.Normalize();
     bal_problem.Perturb(0.1, 0.5, 0.5);
     bal_problem.WriteToPLYFile("initial.ply");
@@ -42,12 +42,14 @@ void SolveBA(BALProblem &bal_problem) {
         // and outputs a 2 dimensional Residual
         cost_function = SnavelyReprojectionError::Create(observations[2 * i + 0], observations[2 * i + 1]);
 
-        // If enabled use Huber's loss function.
+        // If enabled use Huber's loss function. 使用Huber核函数
         ceres::LossFunction *loss_function = new ceres::HuberLoss(1.0);
 
         // Each observation corresponds to a pair of a camera and a point
         // which are identified by camera_index()[i] and point_index()[i]
         // respectively.
+
+        //提取第i个观测值对应的相机id和特征点id 将指定相机id参数与特征点参数纳入优化变量
         double *camera = cameras + camera_block_size * bal_problem.camera_index()[i];
         double *point = points + point_block_size * bal_problem.point_index()[i];
 

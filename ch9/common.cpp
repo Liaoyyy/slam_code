@@ -25,6 +25,11 @@ void PerturbPoint3(const double sigma, double *point) {
         point[i] += RandNormal() * sigma;
 }
 
+/*** 
+ * @description: 找到vector中中位数
+ * @param {vector<double>} *data
+ * @return {*} 中位数
+ */
 double Median(std::vector<double> *data) {
     int n = data->size();
     std::vector<double>::iterator mid_point = data->begin() + n / 2;
@@ -70,6 +75,7 @@ BALProblem::BALProblem(const std::string &filename, bool use_quaternions) {
 
     fclose(fptr);
 
+    //使用四元数？
     use_quaternions_ = use_quaternions;
     if (use_quaternions) {
         // Switch the angle-axis rotations to quaternions.
@@ -208,10 +214,15 @@ void BALProblem::AngleAxisAndCenterToCamera(const double *angle_axis,
     VectorRef(camera + camera_block_size() - 6, 3) *= -1.0;
 }
 
+
+/*** 
+ * @description: 将原始数据归一化（所有路标点中心置零），并做合适缩放，可提高优化过程中数值稳定性
+ * @return {*}
+ */
 void BALProblem::Normalize() {
     // Compute the marginal median of the geometry
     std::vector<double> tmp(num_points_);
-    Eigen::Vector3d median;
+    Eigen::Vector3d median; //为所有特征点x y z坐标的中位数
     double *points = mutable_points();
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < num_points_; ++j) {
@@ -225,7 +236,7 @@ void BALProblem::Normalize() {
         tmp[i] = (point - median).lpNorm<1>();
     }
 
-    const double median_absolute_deviation = Median(&tmp);
+    const double median_absolute_deviation = Median(&tmp);//偏差绝对值
 
     // Scale so that the median absolute deviation of the resulting
     // reconstruction is 100
@@ -250,6 +261,10 @@ void BALProblem::Normalize() {
     }
 }
 
+/*** 
+ * @description: 添加随机噪声
+ * @return {*}
+ */
 void BALProblem::Perturb(const double rotation_sigma,
                          const double translation_sigma,
                          const double point_sigma) {

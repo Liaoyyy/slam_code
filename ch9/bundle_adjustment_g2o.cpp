@@ -95,6 +95,7 @@ public:
     virtual bool write(ostream &out) const {}
 };
 
+//BaseBinaryEdge模板： 观测值维度，观测值类型，顶点类型
 class EdgeProjection :
     public g2o::BaseBinaryEdge<2, Vector2d, VertexPoseAndIntrinsics, VertexPoint> {
 public:
@@ -118,12 +119,12 @@ void SolveBA(BALProblem &bal_problem);
 
 int main(int argc, char **argv) {
 
-    if (argc != 2) {
-        cout << "usage: bundle_adjustment_g2o bal_data.txt" << endl;
-        return 1;
-    }
+    // if (argc != 2) {
+    //     cout << "usage: bundle_adjustment_g2o bal_data.txt" << endl;
+    //     return 1;
+    // }
 
-    BALProblem bal_problem(argv[1]);
+    BALProblem bal_problem("./problem-16-22106-pre.txt");
     bal_problem.Normalize();
     bal_problem.Perturb(0.1, 0.5, 0.5);
     bal_problem.WriteToPLYFile("initial.ply");
